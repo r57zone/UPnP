@@ -9,7 +9,7 @@
 >"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080
 
 Где "nginx (TCP)" это описание, а "8080" перенаправленный порт.
-<br>**Пример удаление порта:**
+<br><br>**Пример удаление порта:**
 
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080
 
@@ -24,7 +24,7 @@
 Application for port forwarding via UPnP.<br>
 
 For auto-adding port at startup, you need to pre-add a shortcut to an application in startup with startup parameters.<br>
-<br>**Example of adding a port:**
+<br>**Example adding a port:**
 >"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080
 
 Where "nginx (TCP)" is a description and "8080" is port forwarding.<br>
