@@ -62,6 +62,7 @@ var
   Status: string;
   Item: TListItem;
 begin
+  Main.ListView.Clear;
   try
     Nat := CreateOleObject('HNetCfg.NATUPnP');
     Ports := Nat.StaticPortMappingCollection;
