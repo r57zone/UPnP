@@ -106,6 +106,8 @@ begin
 
       if not VarIsClear(Ports) then
         Ports.Add(Port, 'TCP', Port, LAN_IP, True, name);
+        //do something
+        //ShowMessage(IntToStr(Ports.Count));
     except on e:Exception do
       ShowMessage('An Error occured with adding UPnP Ports. '+e.Message);
     end;
@@ -150,15 +152,13 @@ end;
 
 procedure TMain.Button3Click(Sender: TObject);
 var
-  Value: string;
-  iValue, iCode: Integer;
+  Item: TListItem;
 begin
-  if InputQuery(Caption, 'Введите номер порта', Value) then
-    Val(Value, iValue, iCode);
-    if (iCode = 0) then begin
-      RemoveUPnPEntry(iValue);
-      ListUPnPEntry;
-    end else ShowMessage('Введите корректно порт одного из добавленных приложений');
+  if ListView.Selected <> nil then begin
+    Item := ListView.Items.Item[ListView.Selected.Index];
+    RemoveUPnPEntry(StrToInt(Item.SubItems[0]));
+    ListUPnPEntry;
+  end;
 end;
 
 procedure TMain.FormCreate(Sender: TObject);
@@ -176,11 +176,12 @@ begin
   end;
 
   Application.Title:=Caption;
+  ListUPnPEntry;
 end;
 
 procedure TMain.Button4Click(Sender: TObject);
 begin
-  Application.MessageBox('UPnP 0.1'+#13#10+'https://github.com/r57zone'+#13#10+'Последнее обновление: 04.01.2017','О программе...',0);
+  Application.MessageBox('UPnP 0.2'+#13#10+'https://github.com/r57zone'+#13#10+'Последнее обновление: 08.04.2017','О программе...',0);
 end;
 
 end.

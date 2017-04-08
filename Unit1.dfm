@@ -74,6 +74,7 @@ object Main: TMain
         Caption = #1057#1086#1089#1090#1086#1103#1085#1080#1077
         Width = 60
       end>
+    RowSelect = True
     TabOrder = 3
     ViewStyle = vsReport
   end
