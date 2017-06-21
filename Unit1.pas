@@ -106,6 +106,7 @@ begin
 
       if not VarIsClear(Ports) then
         Ports.Add(Port, 'TCP', Port, LAN_IP, True, name);
+		
     except on e:Exception do
       ShowMessage('An Error occured with adding UPnP Ports. '+e.Message);
     end;
