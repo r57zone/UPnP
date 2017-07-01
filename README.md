@@ -15,7 +15,7 @@
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080
 
 ## Загрузка
->Версия для Windows XP, ReactOS, Windows 7, Windows 8.1, Windows 10.<br>
+>Версия для Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
 **[Загрузить](https://github.com/r57zone/UPnP/releases)**
 
 ## Обратная связь
@@ -34,7 +34,7 @@ Where "nginx (TCP)" is a description and "8080" is port forwarding.<br>
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080
 
 ## Download
->Version for Windows XP, ReactOS, Windows 7, Windows 8.1, Windows 10.<br>
+>Version for Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
 >If you need a program with an English translation, please write to email and I'll will build it soon.<br>
 **[Download](https://github.com/r57zone/UPnP/releases)**
 
