@@ -1,18 +1,20 @@
-# UPnP (Ru)
+[![RU](https://user-images.githubusercontent.com/9499881/27683795-5b0fbac6-5cd8-11e7-929c-057833e01fb1.png)](https://github.com/r57zone/UPnP/blob/master/README.md) 
+[![EN](https://user-images.githubusercontent.com/9499881/33184537-7be87e86-d096-11e7-89bb-f3286f752bc6.png)](https://github.com/r57zone/UPnP/blob/master/README.EN.md) 
+# UPnP
 Приложение для перенаправления портов через UPnP.
 
 ## Скриншоты
-![](https://cloud.githubusercontent.com/assets/9499881/24828153/0a351264-1c68-11e7-904d-242bb34fed1d.png)
+![](https://user-images.githubusercontent.com/9499881/34568119-374720d0-f17e-11e7-8a0b-43560f397b87.PNG)
 <br><br>
 
 Для авто-добавления порта, при запуске системы, нужно заранее добавить ярлык на приложение, в автозагрузку, с параметрами запуска.<br>
 <br>**Пример добавления порта:**
->"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080
+>"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080 TCP
 
-Где "nginx (TCP)" это описание, а "8080" перенаправленный порт.
+Где "nginx (TCP)" это описание, "8080" перенаправленный порт, "TCP" тип протокола (или "UDP").
 <br><br>**Пример удаление порта:**
 
->"C:\Program Files\UPnP\UPnP.exe" /remove 8080
+>"C:\Program Files\UPnP\UPnP.exe" /remove 8080 TCP
 
 ## Загрузка
 >Версия для Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
@@ -20,23 +22,3 @@
 
 ## Обратная связь
 `r57zone[собака]gmail.com`
-
-# UPnP (En)
-Application for port forwarding via UPnP.<br>
-
-For auto-adding port at startup, you need to pre-add a shortcut to an application in startup with startup parameters.<br>
-<br>**Example adding a port:**
->"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080
-
-Where "nginx (TCP)" is a description and "8080" is port forwarding.<br>
-<br>**Example removal port:**
-
->"C:\Program Files\UPnP\UPnP.exe" /remove 8080
-
-## Download
->Version for Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
->If you need a program with an English translation, please write to email and I'll will build it soon.<br>
-**[Download](https://github.com/r57zone/UPnP/releases)**
-
-## Feedback
-`r57zone[at]gmail.com`
