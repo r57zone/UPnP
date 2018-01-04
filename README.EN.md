@@ -8,11 +8,11 @@ Application for port forwarding via UPnP.
 <br><br>
 
 For auto forwarding port at startup, need to add a shortcut to an application in startup with startup parameters.<br>
-<br>**Example adding a port:**
+<br>**Example of adding a port:**
 >"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080 TCP
 
 Where "nginx (TCP)" is a description, "8080" is port forwarding and "TCP" is type protocol (or "UDP").<br>
-<br>**Example removal port:**
+<br>**Example of removing a port:**
 
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080 TCP
 
