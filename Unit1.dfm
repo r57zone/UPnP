@@ -29,18 +29,18 @@ object Main: TMain
   object AddBtn: TButton
     Left = 88
     Top = 168
-    Width = 89
+    Width = 73
     Height = 25
-    Caption = #1044#1086#1073#1072#1074#1080#1090#1100' '#1087#1086#1088#1090
+    Caption = #1044#1086#1073#1072#1074#1080#1090#1100
     TabOrder = 1
     OnClick = AddBtnClick
   end
   object RemBtn: TButton
-    Left = 184
+    Left = 168
     Top = 168
-    Width = 89
+    Width = 73
     Height = 25
-    Caption = #1059#1076#1072#1083#1080#1090#1100' '#1087#1086#1088#1090
+    Caption = #1059#1076#1072#1083#1080#1090#1100
     TabOrder = 2
     OnClick = RemBtnClick
   end

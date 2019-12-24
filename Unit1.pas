@@ -123,6 +123,7 @@ begin
           Ports.Add(Port, 'UDP', Port, LAN_IP, True, name);
         Result:=true;
       end;
+        //ShowMessage(IntToStr(Ports.Count));
     except
       Result:=false;
     end;
@@ -157,6 +158,8 @@ var
   iValue, iCode: Integer;
   isTCP: boolean;
 begin
+  isTCP:=true;
+
   if InputQuery(Caption, ID_ENTER_APP_NAME, Value) and InputQuery(Caption, ID_ENTER_PORT_NUM, Value2) then
     Val(Value2, iValue, iCode);
 
@@ -165,9 +168,16 @@ begin
     Exit;
   end;
 
-  case MessageBox(Handle, PChar(ID_CHOOSE_PROTOCOL), PChar(Caption), MB_YESNO + MB_ICONQUESTION) of
-    6: isTCP:=true;
-    7: isTCP:=false;
+  with CreateMessageDialog(PChar(ID_CHOOSE_PROTOCOL), mtConfirmation, mbYesNoCancel) do
+  try
+    TButton(FindComponent('Yes')).Caption := 'TCP';
+    TButton(FindComponent('No')).Caption := 'UDP';
+    case ShowModal of
+      mrYes: isTCP:=true;
+      mrNo: isTCP:=false;
+    end;
+  finally
+    Free;
   end;
 
   if AddUPnPPort(iValue, Value, isTCP, GetLocalIP) then begin
@@ -206,6 +216,9 @@ begin
 end;
 
 procedure TMain.FormCreate(Sender: TObject);
+//var
+//Item: TListItem;
+//Column: TListColumn;
 var
   Ini: TIniFile;
 begin
@@ -242,8 +255,8 @@ begin
   ListView.Columns[4].Caption:=Ini.ReadString('Main', 'ID_IP_ADDRESS', '');
   ListView.Columns[5].Caption:=Ini.ReadString('Main', 'ID_STATE', '');
   RefreshBtn.Caption:=Ini.ReadString('Main', 'ID_REFRESH', '');
-  AddBtn.Caption:=Ini.ReadString('Main', 'ID_ADD_PORT', '');
-  RemBtn.Caption:=Ini.ReadString('Main', 'ID_REM_PORT', '');
+  AddBtn.Caption:=Ini.ReadString('Main', 'ID_ADD', '');
+  RemBtn.Caption:=Ini.ReadString('Main', 'ID_REMOVE', '');
 
   ID_STATUS_ON:=Ini.ReadString('Main', 'ID_STATUS_ON', '');
   ID_STATUS_OFF:=Ini.ReadString('Main', 'ID_STATUS_OFF', '');
@@ -263,12 +276,26 @@ begin
   Ini.Free;
 
   ListUPnPEntry;
+
+  {Column := ListView.Columns.Add;
+  Column.Width := 200;
+  Column.Alignment:= taCenter;
+  Column.Caption:= 'Column 1';
+
+  Column:= ListView.Columns.Add;
+  Column.Width := 200;
+  Column.Alignment := taCenter;
+  Column.Caption := 'Column 2';
+
+  Item := ListView.Items.Add;
+  Item.Caption := 'Item 1';
+  Item.SubItems.Add('Subitem 1'); }
 end;
 
 procedure TMain.AbtBtnClick(Sender: TObject);
 begin
-  Application.MessageBox(PChar(Caption + ' 0.3' + #13#10 +
-  ID_LAST_UPDATE + ' 04.01.2018' + #13#10 +
+  Application.MessageBox(PChar(Caption + ' 0.3.2' + #13#10 +
+  ID_LAST_UPDATE + ' 24.12.2019' + #13#10 +
   'https://r57zone.github.io' + #13#10 +
   'r57zone@gmail.com'), PChar(ID_ABOUT_TITLE), MB_ICONINFORMATION);
 end;
