@@ -17,7 +17,7 @@ Where "nginx (TCP)" is a description, "8080" is port forwarding and "TCP" is typ
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080 TCP
 
 ## Download
->Version for Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
+>Version for Windows XP, 7, 8.1, 10.<br>
 **[Download](https://github.com/r57zone/UPnP/releases)**
 
 ## Feedback

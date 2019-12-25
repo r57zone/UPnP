@@ -17,7 +17,7 @@
 >"C:\Program Files\UPnP\UPnP.exe" /remove 8080 TCP
 
 ## Загрузка
->Версия для Windows XP, Windows 7, Windows 8.1, Windows 10.<br>
+>Версия для Windows XP, 7, 8.1, 10.<br>
 **[Загрузить](https://github.com/r57zone/UPnP/releases)**
 
 ## Обратная связь
