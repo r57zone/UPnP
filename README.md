@@ -7,17 +7,18 @@ Application for ports forwarding on router with UPnP.
 ![](https://user-images.githubusercontent.com/9499881/34568307-cba427dc-f17e-11e7-975c-dec1fcdef29e.PNG)
 <br><br>
 
-For auto forwarding port at startup, need to add a shortcut to an application in startup with startup parameters.<br>
-<br>**Example of adding a port:**
->"C:\Program Files\UPnP\UPnP.exe" /add "nginx (TCP)" 8080 TCP
+For auto forwarding port at startup, need to add a shortcut in startup with startup parameters.<br>
+<br>**Example of adding a TCP port:**
+>"C:\Program Files\UPnP\UPnP.exe" -add -i 8080 -e 80 -ip 192.168.0.100 -n "webserver (TCP)"
 
-Where "nginx (TCP)" is a description, "8080" is port forwarding and "TCP" is type protocol (or "UDP").<br>
-<br>**Example of removing a port:**
+Where "nginx (TCP)" is the name, "8080" is the internal port, and "80" is the external one. For UDP add "-udp" parameter.
+<br><br>**Example of removing a TCP port:**
 
->"C:\Program Files\UPnP\UPnP.exe" /remove 8080 TCP
+>"C:\Program Files\UPnP\UPnP.exe" -rem -e 80
 
+For UDP add "-udp" parameter.
 ## Download
->Version for Windows XP, 7, 8.1, 10.<br>
+>Version for Windows 7, 8.1, 10.<br>
 **[Download](https://github.com/r57zone/UPnP/releases)**
 
 ## Feedback

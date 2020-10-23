@@ -4,13 +4,13 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, WinSock, ComObj, StdCtrls, XPMan, ActiveX, ComCtrls, IniFiles;
+  Dialogs, ComObj, StdCtrls, XPMan, ActiveX, ComCtrls, IniFiles;
 
 type
   TMain = class(TForm)
     RefreshBtn: TButton;
     AddBtn: TButton;
-    XPManifest1: TXPManifest;
+    XPManifest: TXPManifest;
     RemBtn: TButton;
     ListView: TListView;
     AbtBtn: TButton;
@@ -31,32 +31,14 @@ var
   //Перевод / Translate
   ID_STATUS_ON, ID_STATUS_OFF, ID_ERROR_WITH_LISTING_UPNP_PORTS,
   ID_ERROR_WITH_ADD_PORT, ID_ERROR_WITH_REM_PORT, ID_ENTER_APP_NAME,
-  ID_ENTER_PORT_NUM, ID_CHOOSE_PROTOCOL, ID_ADDED_PORT, ID_INVALID_PORT: string;
+  ID_ENTER_EXTERNAL_PORT_NUM, ID_ENTER_INTERNAL_PORT_NUM, ID_ENTER_IP_ADDRESS,
+  ID_CHOOSE_PROTOCOL, ID_ADDED_PORT, ID_INVALID_PORT: string;
 
   ID_LAST_UPDATE, ID_ABOUT_TITLE: string;
 
 implementation
 
 {$R *.dfm}
-
-function GetLocalIP: string;
-const
-  WSVer = $101;
-var
-  wsaData: TWSAData;
-  P: PHostEnt;
-  Buf: array [0..127] of Char;
-begin
-  Result:='';
-  if WSAStartup(WSVer, wsaData) = 0 then begin
-    if GetHostName(@Buf, 128) = 0 then begin
-      P := GetHostByName(@Buf);
-      if P <> nil then
-        Result:=iNet_ntoa(PInAddr(p^.h_addr_list^)^);
-    end;
-    WSACleanup;
-  end;
-end;
 
 procedure ListUPnPEntry;
 var
@@ -106,7 +88,7 @@ begin
 end;
 
 
-function AddUPnPPort(Port: Integer; const Name: ShortString; isTCP: boolean; LAN_IP: string): boolean;
+function AddUPnPPort(ExternalPort, InternalPort: integer; const Name: ShortString; IsTCP: boolean; LAN_IP: string): boolean;
 var
   Nat: Variant;
   Ports: Variant;
@@ -117,10 +99,10 @@ begin
       Ports:=Nat.StaticPortMappingCollection;
 
       if not VarIsClear(Ports) then begin
-        if isTCP then
-          Ports.Add(Port, 'TCP', Port, LAN_IP, True, name)
+        if IsTCP then
+          Ports.Add(ExternalPort, 'TCP', InternalPort, LAN_IP, True, Name)
         else
-          Ports.Add(Port, 'UDP', Port, LAN_IP, True, name);
+          Ports.Add(ExternalPort, 'UDP', InternalPort, LAN_IP, True, Name);
         Result:=true;
       end;
         //ShowMessage(IntToStr(Ports.Count));
@@ -129,7 +111,7 @@ begin
     end;
 end;
 
-function RemoveUPnPPort(Port: Integer; isTCP: boolean): boolean;
+function RemoveUPnPPort(Port: Integer; IsTCP: boolean): boolean;
 var
   Nat: Variant;
   Ports: Variant;
@@ -137,7 +119,7 @@ begin
   try
     Nat:=CreateOleObject('HNetCfg.NATUPnP');
     Ports:=Nat.StaticPortMappingCollection;
-    if isTCP then
+    if IsTCP then
       Ports.Remove(Port, 'TCP')
     else
       Ports.Remove(Port, 'UDP');
@@ -154,34 +136,43 @@ end;
 
 procedure TMain.AddBtnClick(Sender: TObject);
 var
-  Value, Value2: string;
-  iValue, iCode: Integer;
-  isTCP: boolean;
+  AppName, InternalPortValue, ExternalPortValue, IPAddressValue: string;
+  Item: TListItem; IsTCP: boolean;
 begin
-  isTCP:=true;
+  IsTCP:=true;
 
-  if InputQuery(Caption, ID_ENTER_APP_NAME, Value) and InputQuery(Caption, ID_ENTER_PORT_NUM, Value2) then
-    Val(Value2, iValue, iCode);
+  //Вводим IP адрес от выбранного приложения (для большинства пользователей будет актуален, а для других почти)
+  if ListView.Selected <> nil then begin
+    Item:=ListView.Items.Item[ListView.Selected.Index];
+    IPAddressValue:=Item.SubItems[3];
+  end;
 
-  if (Trim(Value) = '') or (iCode <> 0) or (iValue = 80) then begin
+  if InputQuery(Caption, ID_ENTER_APP_NAME, AppName) then //Не вызываем дальнейшие диалоги в случае отмены
+  if InputQuery(Caption, ID_ENTER_IP_ADDRESS, IPAddressValue) then
+  if InputQuery(Caption, ID_ENTER_INTERNAL_PORT_NUM, InternalPortValue) then
+  InputQuery(Caption, ID_ENTER_EXTERNAL_PORT_NUM, ExternalPortValue);
+
+  if (Trim(AppName) = '') then AppName:='Unknown';
+
+  if (StrToIntDef(InternalPortValue, 0) = 0) or (StrToIntDef(ExternalPortValue, 0) = 0) then begin
     Application.MessageBox(PChar(ID_INVALID_PORT), PChar(Caption), MB_ICONINFORMATION);
     Exit;
   end;
 
   with CreateMessageDialog(PChar(ID_CHOOSE_PROTOCOL), mtConfirmation, mbYesNoCancel) do
   try
-    TButton(FindComponent('Yes')).Caption := 'TCP';
-    TButton(FindComponent('No')).Caption := 'UDP';
+    TButton(FindComponent('Yes')).Caption:='TCP';
+    TButton(FindComponent('No')).Caption:='UDP';
     case ShowModal of
-      mrYes: isTCP:=true;
-      mrNo: isTCP:=false;
+      mrYes: IsTCP:=true;
+      mrNo: IsTCP:=false;
     end;
   finally
     Free;
   end;
 
-  if AddUPnPPort(iValue, Value, isTCP, GetLocalIP) then begin
-    Application.MessageBox(PChar(Format(ID_ADDED_PORT, [iValue, Value])), PChar(Caption), MB_ICONINFORMATION);
+  if AddUPnPPort(StrToIntDef(ExternalPortValue, 80), StrToIntDef(InternalPortValue, 80), AppName, IsTCP, IPAddressValue) then begin
+    Application.MessageBox(PChar(Format(ID_ADDED_PORT, [InternalPortValue, AppName])), PChar(Caption), MB_ICONINFORMATION);
     ListUPnPEntry;
   end else
     Application.MessageBox(PChar(ID_ERROR_WITH_ADD_PORT), PChar(Caption), MB_ICONINFORMATION);
@@ -189,17 +180,17 @@ end;
 
 procedure TMain.RemBtnClick(Sender: TObject);
 var
-  Item: TListItem; isTCP: boolean;
+  Item: TListItem; IsTCP: boolean;
 begin
   if ListView.Selected <> nil then begin
     Item:=ListView.Items.Item[ListView.Selected.Index];
 
     if Item.SubItems[0] = 'TCP' then
-      isTCP:=true
+      IsTCP:=true
     else
-      isTCP:=false;
+      IsTCP:=false;
 
-    if RemoveUPnPPort(StrToInt(Item.SubItems[1]), isTCP) then
+    if RemoveUPnPPort(StrToInt(Item.SubItems[1]), IsTCP) then
       ListUPnPEntry
     else
       Application.MessageBox(PChar(ID_ERROR_WITH_REM_PORT), PChar(Caption), MB_ICONINFORMATION);
@@ -221,22 +212,38 @@ procedure TMain.FormCreate(Sender: TObject);
 //Column: TListColumn;
 var
   Ini: TIniFile;
+  i: integer;
+  IsTCP: boolean;
+  AppName, ActionValue, IPAddressValue: shortstring;
+  InternalPortValue, ExternalPortValue: word;
 begin
-  if (LowerCase(ParamStr(1))= '/add') and (ParamStr(2) <> '') and (ParamStr(3) <> '') and (ParamStr(4) <> '') then begin
-    Application.ShowMainForm:=false;
-    if LowerCase(ParamStr(4)) = 'tcp' then
-      AddUPnPPort(StrToInt(ParamStr(3)), ParamStr(2), true, GetLocalIP)
+  IsTCP:=true;
+  for i:=1 to ParamCount do begin
+    if LowerCase(ParamStr(i)) = '-add' then ActionValue:='add';
+    if LowerCase(ParamStr(i)) = '-rem' then ActionValue:='rem';
+    if LowerCase(ParamStr(i)) = '-i' then InternalPortValue:=StrToIntDef(ParamStr(i + 1), 0);
+    if LowerCase(ParamStr(i)) = '-e' then ExternalPortValue:=StrToIntDef(ParamStr(i + 1), 0);
+    if LowerCase(ParamStr(i)) = '-ip' then IPAddressValue:=ParamStr(i + 1);
+    if LowerCase(ParamStr(i)) = '-n' then AppName:=ParamStr(i + 1);
+    if LowerCase(ParamStr(i)) = '-udp' then IsTCP:=false;
+  end;
+
+  if (ActionValue = 'add') and (InternalPortValue <> 0) and (ExternalPortValue <> 0) and
+     (Trim(AppName) <> '') and (Trim(IPAddressValue) <> '') then begin
+     Application.ShowMainForm:=false;
+    if IsTCP then
+      AddUPnPPort(ExternalPortValue, InternalPortValue, AppName, true, IPAddressValue)
     else
-      AddUPnPPort(StrToInt(ParamStr(3)), ParamStr(2), false, GetLocalIP);
+      AddUPnPPort(ExternalPortValue, InternalPortValue, AppName, false, IPAddressValue);
     Application.Terminate;
   end;
 
-  if (LowerCase(ParamStr(1)) = '/remove') and (ParamStr(2) <> '') and (ParamStr(3) <> '') then begin
+  if (ActionValue = 'rem') and (ExternalPortValue <> 0) then begin
     Application.ShowMainForm:=false;
-    if LowerCase(ParamStr(3)) = 'tcp' then
-      RemoveUPnPPort(StrToInt(ParamStr(2)), true)
+    if IsTCP then
+      RemoveUPnPPort(ExternalPortValue, true)
     else
-      RemoveUPnPPort(StrToInt(ParamStr(2)), false);
+      RemoveUPnPPort(ExternalPortValue, false);
     Application.Terminate;
   end;
 
@@ -265,7 +272,9 @@ begin
   ID_ERROR_WITH_ADD_PORT:=Ini.ReadString('Main', 'ID_ERROR_WITH_ADD_PORT', '');
   ID_ERROR_WITH_REM_PORT:=Ini.ReadString('Main', 'ID_ERROR_WITH_REM_PORT', '');
   ID_ENTER_APP_NAME:=Ini.ReadString('Main', 'ID_ENTER_APP_NAME', '');
-  ID_ENTER_PORT_NUM:=Ini.ReadString('Main', 'ID_ENTER_PORT_NUM', '');
+  ID_ENTER_EXTERNAL_PORT_NUM:=Ini.ReadString('Main', 'ID_ENTER_EXTERNAL_PORT_NUM', '');
+  ID_ENTER_INTERNAL_PORT_NUM:=Ini.ReadString('Main', 'ID_ENTER_INTERNAL_PORT_NUM', '');
+  ID_ENTER_IP_ADDRESS:=Ini.ReadString('Main', 'ID_ENTER_IP_ADDRESS', '');
   ID_CHOOSE_PROTOCOL:=Ini.ReadString('Main', 'ID_CHOOSE_PROTOCOL', '');
   ID_ADDED_PORT:=Ini.ReadString('Main', 'ID_ADDED_PORT', '');
   ID_INVALID_PORT:=Ini.ReadString('Main', 'ID_INVALID_PORT', '');
@@ -294,8 +303,8 @@ end;
 
 procedure TMain.AbtBtnClick(Sender: TObject);
 begin
-  Application.MessageBox(PChar(Caption + ' 0.3.2' + #13#10 +
-  ID_LAST_UPDATE + ' 24.12.2019' + #13#10 +
+  Application.MessageBox(PChar(Caption + ' 0.4' + #13#10 +
+  ID_LAST_UPDATE + ' 23.10.2020' + #13#10 +
   'https://r57zone.github.io' + #13#10 +
   'r57zone@gmail.com'), PChar(ID_ABOUT_TITLE), MB_ICONINFORMATION);
 end;
