@@ -4,8 +4,8 @@ object Main: TMain
   BorderIcons = [biSystemMenu, biMinimize]
   BorderStyle = bsSingle
   Caption = 'UPnP'
-  ClientHeight = 200
-  ClientWidth = 480
+  ClientHeight = 201
+  ClientWidth = 481
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -18,30 +18,30 @@ object Main: TMain
   PixelsPerInch = 96
   TextHeight = 13
   object RefreshBtn: TButton
-    Left = 8
-    Top = 168
-    Width = 73
+    Left = 7
+    Top = 167
+    Width = 75
     Height = 25
     Caption = #1054#1073#1085#1086#1074#1080#1090#1100
-    TabOrder = 0
+    TabOrder = 1
     OnClick = RefreshBtnClick
   end
   object AddBtn: TButton
-    Left = 88
-    Top = 168
-    Width = 73
+    Left = 86
+    Top = 167
+    Width = 75
     Height = 25
     Caption = #1044#1086#1073#1072#1074#1080#1090#1100
-    TabOrder = 1
+    TabOrder = 2
     OnClick = AddBtnClick
   end
   object RemBtn: TButton
-    Left = 168
-    Top = 168
-    Width = 73
+    Left = 165
+    Top = 167
+    Width = 75
     Height = 25
     Caption = #1059#1076#1072#1083#1080#1090#1100
-    TabOrder = 2
+    TabOrder = 3
     OnClick = RemBtnClick
   end
   object ListView: TListView
@@ -51,7 +51,7 @@ object Main: TMain
     Height = 150
     Columns = <
       item
-        Caption = #1054#1087#1080#1089#1072#1085#1080#1077' '#1087#1088#1080#1083#1086#1078#1077#1085#1080#1103
+        Caption = #1053#1072#1079#1074#1072#1085#1080#1077' '#1087#1088#1080#1083#1086#1078#1077#1085#1080#1103
         Width = 110
       end
       item
@@ -76,12 +76,12 @@ object Main: TMain
       end>
     ReadOnly = True
     RowSelect = True
-    TabOrder = 3
+    TabOrder = 0
     ViewStyle = vsReport
   end
   object AbtBtn: TButton
-    Left = 448
-    Top = 168
+    Left = 449
+    Top = 167
     Width = 25
     Height = 25
     Caption = '?'
@@ -90,6 +90,6 @@ object Main: TMain
   end
   object XPManifest: TXPManifest
     Left = 16
-    Top = 16
+    Top = 40
   end
 end

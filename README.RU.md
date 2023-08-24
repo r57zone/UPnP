@@ -1,10 +1,10 @@
 [![EN](https://user-images.githubusercontent.com/9499881/33184537-7be87e86-d096-11e7-89bb-f3286f752bc6.png)](https://github.com/r57zone/UPnP/blob/master/README.md) 
 [![RU](https://user-images.githubusercontent.com/9499881/27683795-5b0fbac6-5cd8-11e7-929c-057833e01fb1.png)](https://github.com/r57zone/UPnP/blob/master/README.RU.md) 
 # UPnP
-Приложение для перенаправления портов на маршрутизаторе, через UPnP.
+Приложение для перенаправления портов на маршрутизаторе, через UPnP. С его помощью можно быстро открыть порт для игры по сети или для доступа к любому сетевому приложению, без необходимости настраивать маршрутизатор (роутер).
 
 ## Скриншоты
-![](https://user-images.githubusercontent.com/9499881/34568119-374720d0-f17e-11e7-8a0b-43560f397b87.PNG)
+![](https://github-production-user-asset-6210df.s3.amazonaws.com/9499881/263049583-e99e2209-59ee-4cb1-947c-264a64b69116.png)
 
 ## Настройка
 Для авто-добавления порта, при запуске системы, нужно заранее добавить ярлык в автозагрузку, с параметрами запуска.<br>
@@ -19,7 +19,8 @@
 Для UDP добавить параметр "-udp".
 
 ## Загрузка
->Версия для Windows 7, 8.1, 10.<br>
+>Версия для Windows 7, 8.1, 10, 11.
+
 **[Загрузить](https://github.com/r57zone/UPnP/releases)**
 
 ## Обратная связь

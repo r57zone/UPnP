@@ -22,25 +22,35 @@ type
   private
     { Private declarations }
   public
+    procedure ListUPnPEntry;
+    function AddUPnPPort(ExternalPort, InternalPort: integer; const Name: ShortString; IsTCP: boolean; LAN_IP: string): boolean;
     { Public declarations }
   end;
 
 var
   Main: TMain;
-
+  
   //Перевод / Translate
   ID_STATUS_ON, ID_STATUS_OFF, ID_ERROR_WITH_LISTING_UPNP_PORTS,
   ID_ERROR_WITH_ADD_PORT, ID_ERROR_WITH_REM_PORT, ID_ENTER_APP_NAME,
   ID_ENTER_EXTERNAL_PORT_NUM, ID_ENTER_INTERNAL_PORT_NUM, ID_ENTER_IP_ADDRESS,
-  ID_CHOOSE_PROTOCOL, ID_ADDED_PORT, ID_INVALID_PORT: string;
+  ID_CHOOSE_PROTOCOL, ID_INVALID_PORT, ID_INVALID_IP: string;
+
+  ID_ADD_PORT, ID_CANCEL, ID_PROFILES, ID_SELECT_PROFILE: string;
 
   ID_LAST_UPDATE, ID_ABOUT_TITLE: string;
 
+  IPAddressSelectedValue: string;
+
+  MsgAppName, MsgIntPort: string;
+
 implementation
+
+uses Unit2;
 
 {$R *.dfm}
 
-procedure ListUPnPEntry;
+procedure TMain.ListUPnPEntry;
 var
   Nat: Variant;
   Ports: Variant;
@@ -87,8 +97,7 @@ begin
   end;
 end;
 
-
-function AddUPnPPort(ExternalPort, InternalPort: integer; const Name: ShortString; IsTCP: boolean; LAN_IP: string): boolean;
+function TMain.AddUPnPPort(ExternalPort, InternalPort: integer; const Name: ShortString; IsTCP: boolean; LAN_IP: string): boolean;
 var
   Nat: Variant;
   Ports: Variant;
@@ -135,47 +144,8 @@ begin
 end;
 
 procedure TMain.AddBtnClick(Sender: TObject);
-var
-  AppName, InternalPortValue, ExternalPortValue, IPAddressValue: string;
-  Item: TListItem; IsTCP: boolean;
 begin
-  IsTCP:=true;
-
-  //Вводим IP адрес от выбранного приложения (для большинства пользователей будет актуален, а для других почти)
-  if ListView.Selected <> nil then begin
-    Item:=ListView.Items.Item[ListView.Selected.Index];
-    IPAddressValue:=Item.SubItems[3];
-  end;
-
-  if InputQuery(Caption, ID_ENTER_APP_NAME, AppName) then //Не вызываем дальнейшие диалоги в случае отмены
-  if InputQuery(Caption, ID_ENTER_IP_ADDRESS, IPAddressValue) then
-  if InputQuery(Caption, ID_ENTER_INTERNAL_PORT_NUM, InternalPortValue) then
-  InputQuery(Caption, ID_ENTER_EXTERNAL_PORT_NUM, ExternalPortValue);
-
-  if (Trim(AppName) = '') then AppName:='Unknown';
-
-  if (StrToIntDef(InternalPortValue, 0) = 0) or (StrToIntDef(ExternalPortValue, 0) = 0) then begin
-    Application.MessageBox(PChar(ID_INVALID_PORT), PChar(Caption), MB_ICONINFORMATION);
-    Exit;
-  end;
-
-  with CreateMessageDialog(PChar(ID_CHOOSE_PROTOCOL), mtConfirmation, mbYesNoCancel) do
-  try
-    TButton(FindComponent('Yes')).Caption:='TCP';
-    TButton(FindComponent('No')).Caption:='UDP';
-    case ShowModal of
-      mrYes: IsTCP:=true;
-      mrNo: IsTCP:=false;
-    end;
-  finally
-    Free;
-  end;
-
-  if AddUPnPPort(StrToIntDef(ExternalPortValue, 80), StrToIntDef(InternalPortValue, 80), AppName, IsTCP, IPAddressValue) then begin
-    Application.MessageBox(PChar(Format(ID_ADDED_PORT, [InternalPortValue, AppName])), PChar(Caption), MB_ICONINFORMATION);
-    ListUPnPEntry;
-  end else
-    Application.MessageBox(PChar(ID_ERROR_WITH_ADD_PORT), PChar(Caption), MB_ICONINFORMATION);
+  AddPortForm.ShowModal;
 end;
 
 procedure TMain.RemBtnClick(Sender: TObject);
@@ -207,9 +177,6 @@ begin
 end;
 
 procedure TMain.FormCreate(Sender: TObject);
-//var
-//Item: TListItem;
-//Column: TListColumn;
 var
   Ini: TIniFile;
   i: integer;
@@ -228,34 +195,30 @@ begin
     if LowerCase(ParamStr(i)) = '-udp' then IsTCP:=false;
   end;
 
-  if (ActionValue = 'add') and (InternalPortValue <> 0) and (ExternalPortValue <> 0) and
-     (Trim(AppName) <> '') and (Trim(IPAddressValue) <> '') then begin
-     Application.ShowMainForm:=false;
-    if IsTCP then
-      AddUPnPPort(ExternalPortValue, InternalPortValue, AppName, true, IPAddressValue)
-    else
-      AddUPnPPort(ExternalPortValue, InternalPortValue, AppName, false, IPAddressValue);
-    Application.Terminate;
-  end;
+  if ParamCount > 0 then begin
+    if (ActionValue = 'add') and (InternalPortValue <> 0) and (ExternalPortValue <> 0) and
+      (Trim(AppName) <> '') and (Trim(IPAddressValue) <> '') then begin
+      Application.ShowMainForm:=false;
+      AddUPnPPort(ExternalPortValue, InternalPortValue, AppName, IsTCP, IPAddressValue);
+      Application.Terminate;
+    end;
 
-  if (ActionValue = 'rem') and (ExternalPortValue <> 0) then begin
-    Application.ShowMainForm:=false;
-    if IsTCP then
-      RemoveUPnPPort(ExternalPortValue, true)
-    else
-      RemoveUPnPPort(ExternalPortValue, false);
-    Application.Terminate;
+    if (ActionValue = 'rem') and (ExternalPortValue <> 0) then begin
+      Application.ShowMainForm:=false;
+      RemoveUPnPPort(ExternalPortValue, IsTCP);
+      Application.Terminate;
+    end;
   end;
 
   Application.Title:=Caption;
 
-  //Перевод / Translate
+  // Перевод / Translate
   if FileExists(ExtractFilePath(ParamStr(0)) + 'Languages\' + GetLocaleInformation(LOCALE_SENGLANGUAGE) + '.ini') then
     Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Languages\' + GetLocaleInformation(LOCALE_SENGLANGUAGE) + '.ini')
   else
     Ini:=TIniFile.Create(ExtractFilePath(ParamStr(0)) + 'Languages\English.ini');
 
-  ListView.Columns[0].Caption:=Ini.ReadString('Main', 'ID_DESC_APP', '');
+  ListView.Columns[0].Caption:=Ini.ReadString('Main', 'ID_APP_NAME', '');
   ListView.Columns[1].Caption:=Ini.ReadString('Main', 'ID_PROTOCOL', '');
   ListView.Columns[2].Caption:=Ini.ReadString('Main', 'ID_EXTERNAL_PORT', '');
   ListView.Columns[3].Caption:=Ini.ReadString('Main', 'ID_INTERNAL_PORT', '');
@@ -276,8 +239,14 @@ begin
   ID_ENTER_INTERNAL_PORT_NUM:=Ini.ReadString('Main', 'ID_ENTER_INTERNAL_PORT_NUM', '');
   ID_ENTER_IP_ADDRESS:=Ini.ReadString('Main', 'ID_ENTER_IP_ADDRESS', '');
   ID_CHOOSE_PROTOCOL:=Ini.ReadString('Main', 'ID_CHOOSE_PROTOCOL', '');
-  ID_ADDED_PORT:=Ini.ReadString('Main', 'ID_ADDED_PORT', '');
+  //ID_ADDED_PORT:=Ini.ReadString('Main', 'ID_ADDED_PORT', '');
   ID_INVALID_PORT:=Ini.ReadString('Main', 'ID_INVALID_PORT', '');
+  ID_INVALID_IP:=Ini.ReadString('Main', 'ID_INVALID_IP', '');
+
+  ID_ADD_PORT:=Ini.ReadString('Main', 'ID_ADD_PORT', '');
+  ID_CANCEL:=Ini.ReadString('Main', 'ID_CANCEL', '');
+  ID_PROFILES:=Ini.ReadString('Main', 'ID_PROFILES', '');
+  ID_SELECT_PROFILE:=Ini.ReadString('Main', 'ID_SELECT_PROFILE', '');
 
   ID_LAST_UPDATE:=Ini.ReadString('Main', 'ID_LAST_UPDATE', '');
   ID_ABOUT_TITLE:=Ini.ReadString('Main', 'ID_ABOUT_TITLE', '');
@@ -285,26 +254,12 @@ begin
   Ini.Free;
 
   ListUPnPEntry;
-
-  {Column := ListView.Columns.Add;
-  Column.Width := 200;
-  Column.Alignment:= taCenter;
-  Column.Caption:= 'Column 1';
-
-  Column:= ListView.Columns.Add;
-  Column.Width := 200;
-  Column.Alignment := taCenter;
-  Column.Caption := 'Column 2';
-
-  Item := ListView.Items.Add;
-  Item.Caption := 'Item 1';
-  Item.SubItems.Add('Subitem 1'); }
 end;
 
 procedure TMain.AbtBtnClick(Sender: TObject);
 begin
-  Application.MessageBox(PChar(Caption + ' 0.4' + #13#10 +
-  ID_LAST_UPDATE + ' 23.10.2020' + #13#10 +
+  Application.MessageBox(PChar(Caption + ' 0.5' + #13#10 +
+  ID_LAST_UPDATE + ' 24.08.2023' + #13#10 +
   'https://r57zone.github.io' + #13#10 +
   'r57zone@gmail.com'), PChar(ID_ABOUT_TITLE), MB_ICONINFORMATION);
 end;
